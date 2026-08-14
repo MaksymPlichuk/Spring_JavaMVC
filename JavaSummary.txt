@@ -1,0 +1,490 @@
+    /$$$$$                              
+   |__  $$                              
+      | $$  /$$$$$$  /$$    /$$ /$$$$$$ 
+      | $$ |____  $$|  $$  /$$/|____  $$
+ /$$  | $$  /$$$$$$$ \  $$/$$/  /$$$$$$$
+| $$  | $$ /$$__  $$  \  $$$/  /$$__  $$
+|  $$$$$$/|  $$$$$$$   \  $/  |  $$$$$$$
+ \______/  \_______/    \_/    \_______/
+                                        
+---------------------------------------------- 	
+01_Intro to Java Змінні, цикли, масиви                                    
+
+	Схожа на C# на 80%              
+			  
+	для роботи Inteliji IDEA									
+https://www.jetbrains.com/idea/download/
+
+потрібно скачти Java для React найкраще 17
+
+java -version 
+
+створ проект на Java	
+		Build System Maven
+
+sout + TAB == System.out.println()
+
+
+Типи данних майже ті самі
+        int a = 25;
+        boolean b = true;
+        char ch = 'd';
+        String str = "string";
+
+        System.out.println(ch+" "+str);
+
+
+Для cin потрібно
+	import java.util.Scanner;
+	
+	Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
+		
+        System.out.println("Hello " + name);
+
+
+	Scanner scanner = new Scanner(System.in);
+	
+		 		парсимо до int
+        int size = scanner.nextInt();
+		int[] arr = new int[size];
+
+        Random rand = new Random();
+        int min =18;   int max = 80;
+        for (int i=0; i<size; i++)        {
+            arr[i] = rand.nextInt(max-min+1)+min;
+        }
+        for (int item: arr){
+            System.out.printf("%d\t", item);
+        }
+		
+---------------------------------------------- 	
+02_Java ООП
+
+org.example -- package папка (namespace у C#)
+
+	public class Animal {
+		private String name;	--змінні
+		private int age;
+	
+ПКМ generate Getter Setter
+	
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public Animal(){
+		}
+		public Animal(String name, int age){
+			this.name = name
+			this.age = age
+		}
+		
+		@Override --перевизнач у базовом класі
+		public String toString() {
+			return "Animal{" +
+					"name='" + name + '\'' +
+					", age=" + age +
+					'}';
+		}
+		
+		
+	}
+
+https://mvnrepository.com/
+	maven = NuGet Package
+
+Шукаємо і копіюємо команду
+	і у pom.xml додаємо
+	
+	<dependencies>
+        <!-- Source: https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.46</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+і жмемо кнопку maven syncChanges
+
+	lombok - пакет для { get; set }
+
+	 і File > Settings > Plugins > Lombok
+
+	import lombok.Data;
+	
+	@Data			 //на всіх полях getter setter
+	@AllArgsConstructor		//авто ctor з всіма парам
+	@NoArgsConstructor		//ctor без парам
+	
+	public class Animal {
+		private String name;
+		..
+
+				Наслідування
+public class Cat extends Animal{
+	private boolean indoorOnly;
+    
+    public Cat(){
+        super("Кіт",2);	--ctor батькіский == base()
+        this.indoorOnly = false;
+    }
+	
+	@Override
+    public String toString(){
+        String str = super.toString();
+        return str;
+    }
+}
+
+Аналог List у C#
+	import java.util.ArrayList;
+
+	ArrayList<Animal> list = new ArrayList<>();
+        list.add(myDog);
+        list.add(myCat);
+
+---------------------------------------------- 	
+03_Hibernates
+
+https://o7planning.org/10973/java-basic
+
+Hibernate == Entity framework
+
+https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core
+	бібліотека для БД
+
+    <dependencies>
+        <!-- Source: https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>7.4.4.Final</version>
+        </dependency>
+    </dependencies>
+	
+для класів: Lombok
+драйвер для БД: postgre SQL	
+	        <!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.13</version>
+        </dependency>
+--
+
+@Data
+@Entity   --означ що це таблиця у БД
+@Table(name="tblCategories")    --Назва таблиці
+public class CategoryEntity {
+    @Id 		-primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) 	--атвоінкремент
+    private int id;
+
+    @Column(length=150, nullable=false)
+    private String name;
+
+    @Column(name="date_created", nullable = false)
+    private LocalDateTime dateCreated;
+
+    public CategoryEntity() {
+        this.dateCreated = LocalDateTime.now();
+    }
+    
+    public CategoryEntity(String name) {
+        super();		--базовий ctor
+        this.name = name;
+    }
+}
+
+у resources створ файл: hibernate.properties
+ #
+		# Database connection settings
+	# 
+	# 
+	hibernate.connection.url=jdbc:postgresql://host/dbname?charSet=UTF8
+	hibernate.connection.username=user
+	hibernate.connection.password=password
+	
+		# Echo all executed SQL to console
+	hibernate.show_sql=true
+	hibernate.format_sql=true
+	hibernate.highlight_sql=true
+	
+		# Automatically export the schema
+	#hibernate.hbm2ddl.auto=create
+	hibernate.hbm2ddl.auto=update
+
+ #
+
+і так само на neonDB та TempMail 
+
+ створ папку utils > HibernateHelper == DbContext
+
+sessionFactory об'єкт який працює з бд
+#
+	public class HibernateHelper {
+	
+		@Getter
+		  //Підключення до БД - в Java усе фабрики
+		public static SessionFactory sessionFactory;
+	
+		  //автоматичний виклик метод при використанні данного
+		static {
+		
+		  //як readonly в C#
+			final StandardServiceRegistry registry = new StandardServiceRegistryBuilder().build();  //читає конфігурацію hibernate.properties
+			
+			try {
+				sessionFactory = new MetadataSources(registry)
+						.addAnnotatedClass(CategoryEntity.class) //вказали, що буде таблиця в БД
+						.buildMetadata().buildSessionFactory();
+						
+			} catch (Exception e) {
+				System.out.println("Error"+e);
+				StandardServiceRegistryBuilder.destroy(registry);
+			}
+		}
+		
+	//    public static SessionFactory getSessionFactory() {
+	//        return sessionFactory;
+	//    }
+	
+		public static Session getSession() {
+			return sessionFactory.openSession();
+		}
+		public static void shutDown(){
+			if (sessionFactory != null) {
+				sessionFactory.close();
+			}
+		}
+	}
+#	
+--
+Main
+	try (var session = HibernateHelper.getSession()) {
+				session.beginTransaction();
+	
+	//            CategoryEntity cat = new CategoryEntity("Морозиво");
+	//            session.persist(cat); //add to db
+	
+				var list = session.createQuery("from CategoryEntity", CategoryEntity.class).getResultList();
+				for (var item : list) {
+					System.out.printf("%d\t%s\n", item.getId(), item.getName());
+				}
+	
+				session.getTransaction().commit(); //зберегти зміни
+				
+	} catch (Exception ex){
+		System.out.println("Error"+ex.getMessage());
+	}
+	
+---------------------------------------------- 	
+04_OOP ORM
+
+
+налаштування підключення до БД у
+	src/main/resources/hibernate.properties
+
+створ БД https://neon.com/ https://temp-mail.org/
+
+ставимо depencency pom.xml
+
+папка utils
+utils/HibernateHelper --клас підлкюч до БД
+
+
+
+створ папку entities --у якій будуть класи
+
+#	
+	@Data
+	@Entity
+	@Table(name = "categories")
+	public class CategoryEntity {
+	
+		@Id
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		@Column(name = "id")
+		private Long id;
+	
+		@Column(name = "name", nullable = false, length = 100)
+		private String name;
+	
+		@Column(name = "description", length = 500)
+		private String description;
+	
+	//    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+	//    private List<ProductEntity> products;
+	}
+
+	@Data
+	@Entity
+	@Table(name = "product_photos")
+	public class ProductPhotoEntity {
+	
+		@Id
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		@Column(name = "id")
+		private Long id;
+	
+		@Column(name = "url", nullable = false, length = 500)
+		private String url;
+	
+		@Column(name = "is_main")
+		private Boolean isMain = false;
+	
+		@ManyToOne(fetch = FetchType.LAZY)              //include
+		@JoinColumn(name = "product_id", nullable = false) //назва у таблиці при посиланні
+		private ProductEntity product;
+	}
+#
+
+---------------------------------------------- 	
+05_JavaCollection
+
+для заповнення фейкових данних скачуємо бібліотеку
+	datafaker
+
+	private static void seedCategories(Session session) {
+			Random random = new Random(12345);
+			Faker faker = new Faker(random);
+	
+			List<String> categoryNames = List.of(
+					"Електроніка", "Одяг та взуття", "Дім і сад",
+					"Спорт та відпочинок", "Краса та здоров'я",
+					"Книги", "Іграшки", "Автотовари", "Продукти харчування"
+			);
+
+//для перевірки якщо помилка нічого не запишеться	
+			Transaction transaction = session.beginTransaction();
+	
+			for (String name : categoryNames) {
+				Long count = session.createQuery(
+								"select count(c) from CategoryEntity c where c.name = :name", Long.class)
+						.setParameter("name", name)
+						.uniqueResult();
+	
+				if (count == 0) {
+					CategoryEntity category = new CategoryEntity();
+					category.setName(name);
+					category.setDescription(faker.lorem().sentence(10));
+					session.persist(category); //add
+				}
+			}
+	
+			transaction.commit();
+			System.out.println("Категорії перевірені/додані");
+		}
+		
+для зображень
+	private static final Path IMAGES_DIR = Paths.Get("images","products");
+		
+		
+    private static void downloadImage(String imageUrl, Path destination) 
+	{
+        try (InputStream in = URI.create(imageUrl).toURL().openStream()) 
+		{
+            Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Скачано: " + destination.getFileName());
+        } catch (IOException e) {
+            System.out.println("Не вдалося скачати " + imageUrl + ": " + e.getMessage());
+        }
+    }		
+		
+		
+---------------------------------------------- 	
+06_SpringAPI
+
+nginx -- для хосту замість elastic ip
+
+https://start.spring.io/ --готовий проект з встановленим Spring
+
+https://mvnrepository.com/artifact/org.springframework.boot/spring-boot
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+    </parent>
+
+1. spring-boot -- як ASPNET для розробки WEB сайтів
+
+2. далі скачуємо Spring Boot Starter Web
+
+3. team leaf -- зробити проект по типу MVC
+
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nz.net.ultraq.thymeleaf</groupId>
+            <artifactId>thymeleaf-layout-dialect</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+MVC -- рендер сторінки API -- повертає JSON
+
+
+показати що проект Spring Boot
+
+	import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+	@SpringBootApplication
+	public class Main {...
+		System.out.println("Hello World!");
+        SpringApplication.run(Main.class, args); --запустити Spring
+
+
+створ файл 
+		resources/application.properties
+				server.port=8085	--для зміни порту запуску (на 8080 може бути занятий)
+				
+main/resources/templates --аналог Views (html сторінки)				
+				
+org.example/controllers/HomeController.java
+
+	@Controller
+	public class HomeController {
+	
+		@GetMapping("/") //Шлях до головної сторінки
+		public String index(){
+			return "index";
+		}
+	}
+
+4. git boot starter jpa 	--hibernate для Spring
+5. postgres
+6. lombok
+
+Після додавання Postgres налаштовуємо БД у application.properties
+#
+		server.port=8085
+
+	#goxoyay307@lanvos.com
+	# Database connection properties
+	spring.datasource.driver-class-name=org.postgresql.Driver
+	spring.datasource.url=jdbc:postgresql://host:5432/databasename
+	spring.datasource.username=username
+	spring.datasource.password=passworduser
+	
+	# JPA properties
+	spring.jpa.show-sql=true
+	spring.jpa.hibernate.ddl-auto=update
+	spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+	
+	spring.jpa.properties.hibernate.connection.CharSet=UTF-8
+	spring.jpa.properties.hibernate.connection.characterEncoding=UTF-8
+	spring.jpa.properties.hibernate.connection.useUnicode=true
+#
+---------------------------------------------- 	
+07_
