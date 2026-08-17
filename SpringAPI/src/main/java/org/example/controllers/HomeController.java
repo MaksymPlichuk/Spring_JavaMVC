@@ -7,15 +7,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     @GetMapping("/") //Шлях до головної сторінки автоматично шукає файл з таким іменем у templates
-    public String index(){
+    public String index() {
         return "index";
     }
+
     @GetMapping("/login")
-    public String login(){
+    public String login() {
         return "login";
     }
+
     @GetMapping("/register")
-    public String register(){
+    public String register() {
         return "register";
     }
 }

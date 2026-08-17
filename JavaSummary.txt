@@ -402,6 +402,8 @@ utils/HibernateHelper --клас підлкюч до БД
 ---------------------------------------------- 	
 06_SpringAPI
 
+ Spring -- АНАЛОГ asp net (MVC/API)
+
 nginx -- для хосту замість elastic ip
 
 https://start.spring.io/ --готовий проект з встановленим Spring
@@ -487,4 +489,122 @@ org.example/controllers/HomeController.java
 	spring.jpa.properties.hibernate.connection.useUnicode=true
 #
 ---------------------------------------------- 	
-07_
+07_SpringSecurity Stream API
+
+ jpa - для побудови репозиторіїв на Java + Hibernate
+
+thyme leaf	--	https://www.thymeleaf.org/
+
+для юзерів аналогом ASP NET Identiy 
+					є Spring Security
+
+
+7. DataFaker -- для зручніших данних
+8. MapStruct -- простий маппер
+9. MapStruct Processor -- автомапер
+
+10. Spring Security -- Identity
+11. Spring Boot-starter validation -- валідатор форм
+
+12. thumbnailator -- для роботи з фото
+
+налаштовування доступ через SpringSecurity
+	org.example/config/SecurityConfig.java
+
+#
+	@Configuration //означ що клас для конфігурації
+	public class SecurityConfig {
+	
+		@Bean
+		public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.authorizeHttpRequests(auth -> auth
+							.requestMatchers(	//виключення для авторизації
+									"/register",
+									"/",
+									"/forgot-password",
+									"/reset-password",
+									"/songs"
+							).permitAll()			//всі запити
+							.anyRequest().authenticated()
+					)
+					.formLogin(form -> form
+							.loginPage("/login")
+							.loginProcessingUrl("/login")
+							.defaultSuccessUrl("/", true)
+							.permitAll()
+					)
+					.logout(logout -> logout
+							.logoutUrl("/logout")
+							.logoutSuccessUrl("/")
+							.permitAll()
+					)
+					.csrf(csrf -> csrf.disable());
+	
+			return http.build();
+		}
+	
+		@Bean
+		public PasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder(); //шифрування
+		}
+	}
+#
+
+Для логіну і регістру створ окремий AccountController
+	І створ окрему папку у Templates account (де буде login reg)
+
+Stream API -- перебір елементів через Lambda (налог LINQ)
+package org.example.entities;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
+@Data
+public class UserEntity implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(unique = true, nullable = false)
+    @Email(message = "Invalid email")
+    private String email;
+
+    @Column(nullable = true, length = 200)
+    private String image;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = true)
+    private String resetPasswordToken;
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
+//        return roles.stream()
+//                .map(r -> new SimpleGrantedAuthority(r.getName()))
+//                .collect(Collectors.toList());
+    }
+
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
+}
+---------------------------------------------- 	
+08_
