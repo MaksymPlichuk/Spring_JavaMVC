@@ -1,0 +1,28 @@
+package org.example.services;
+
+import lombok.RequiredArgsConstructor;
+import org.example.entities.UserEntity;
+import org.example.repositories.IUserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UserInfoService implements UserDetailsService {
+    private final IUserRepository userRepository;
+
+    public void registerUser(UserEntity userEntity) {
+        if (userRepository.existsByUsername(userEntity.getUsername())) {
+            throw new RuntimeException("Username " + userEntity.getUsername() + " already exists");
+        }
+        //todo
+        userRepository.save(userEntity);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+}

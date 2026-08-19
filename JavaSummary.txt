@@ -607,4 +607,136 @@ public class UserEntity implements UserDetails {
     @Override public boolean isEnabled() { return true; }
 }
 ---------------------------------------------- 	
-08_
+08_Spring ControllerRepository
+
+
+<meta>	--	для css
+xmlns	--	підсказки для teamleaf
+
+Тег layout береться з thymleaf хто буде у обгортці
+
+
+<html lang="uk"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org"
+>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Генератор QR Codes</title>
+		<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+	</head>
+	<body>
+		<main layout:fragment = "content"></main>
+	</body>
+</html>
+
+
+
+	<!DOCTYPE html>
+	<html lang="uk"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate = "~{layout}">
+	<head>
+		<title>Головна сторінка</title>
+	</head>
+	<body>
+		<div layout:fragment="content">
+			Головна сторінка ...
+		</div>
+	</body>
+	</html>
+
+
+	<!DOCTYPE html>
+	<html lang="uk"
+		xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+		layout:decorate="~{layout}">	--extend layout
+	<head>
+		<title>Вхід</title>
+	</head>
+	<div layout:fragment="content"> 
+		Вхід на сайті
+	</div>
+	</html>
+
+
+Після сторінок пропис логіку
+ у org.example робимо папки repositories services
+ 
+1. repositories	--	будуть тільки інтерфейси (класи будуються на основі інтерфейсів)
+	IUserRepository
+	
+Optional<UserEntity> -- перевіряє чи існує такий об'єкт
+	
+		public interface IUserRepository extends JpaRepository<UserEntity, Long> {
+			boolean existsByUsername(String username);
+			Optional<UserEntity> findByUsername(String username);
+			Optional<UserEntity> findByEmail(String email);
+			Optional<UserEntity> findByResetPasswordToken(String resetPasswordToken);
+		}
+ 
+2. services
+	UserInfoService -- клас у якого атрибут
+ 
+	@Service	// показ що це сервіс
+	@RequiredArgsConstructor		//насдідуємо вбудований сервіс
+	public class UserInfoService implements UserDetailsService {
+		private final IUserRepository userRepository;
+	
+		@Override										//якщо Optional незнайшов то поверта exception
+		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+			return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+		}
+	}
+--
+1. для реєстрації створюємо Dto
+	і шифрувальник у Confi
+	
+		@Bean
+		public PasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+
+
+2. у UserInfoService
+
+	public void registerUser(UserRegistrationDto dto) {
+			if (userRepository.existsByUsername(dto.username())) {
+				throw new RuntimeException("Користувач вже існує");
+			}
+			
+			UserEntity user = new UserEntity();
+			user.setUsername(dto.username());
+			user.setEmail(dto.email());
+			// Хешуємо пароль перед збереженням
+			user.setPassword(passwordEncoder.encode(dto.password()));
+			
+			userRepository.save(user);
+		}
+		
+3. у AccountController додаємо
+
+	@PostMapping("/register")
+    public String register(@ModelAttribute UserRegistrationDto dto) {
+        userInfoService.registerUser(dto);
+        return "redirect:/login?success"; // перенаправлення після успіху
+    }
+	
+4. І редагуємо форму
+	<form th:action="@{/register}" method="post" th:object="${userRegistrationDto}">
+
+	
+Відправка: Браузер відправляє POST-запит на /register із даними форми.
+Controller: Метод register приймає дані, перетворює їх на UserRegistrationDto і викликає сервіс.
+
+Service:
+	Перевіряє, чи логін вже зайнятий.
+	Бере введений пароль і "пропускає" його через PasswordEncoder (алгоритм BCrypt, наприклад).
+	Створює об'єкт UserEntity і передає його в userRepository.save().
+
+Database: Spring Data JPA виконує SQL-запит INSERT INTO users ... і зберігає дані в БД.	
+	
+---------------------------------------------- 	
+09_
