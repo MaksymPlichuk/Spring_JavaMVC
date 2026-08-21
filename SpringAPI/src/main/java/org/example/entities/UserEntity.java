@@ -40,7 +40,6 @@ public class UserEntity implements UserDetails {
     @Column(nullable = true)
     private String resetPasswordToken;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Set.of(new SimpleGrantedAuthority("ROLE_USER"));

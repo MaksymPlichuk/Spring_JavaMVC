@@ -35,6 +35,8 @@ public class AccountService {
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+        System.out.println(dto.getImage());
+
         UserEntity savedUser = userRepository.save(user);
 
         UsernamePasswordAuthenticationToken authToken =

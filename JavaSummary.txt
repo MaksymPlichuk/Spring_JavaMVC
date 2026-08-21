@@ -739,7 +739,7 @@ Service:
 Database: Spring Data JPA виконує SQL-запит INSERT INTO users ... і зберігає дані в БД.	
 	
 ---------------------------------------------- 	
-09_
+09_Forms MVC
 
 @Component	--	автоматично запускається при проекті
 
@@ -793,3 +793,22 @@ arg -- команди консольного рядка
         );
 
 
+для файлів у форму як у C#
+	<form th:action="@{/register}" th:object="${registerDto}" method="post" 
+			enctype="multipart/form-data">
+
+	 <input
+                 type="file"
+                 th:field="*{image}"
+                 accept="image/*"
+                 class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+         />
+
+у DTO додаємо поле
+	public class RegisterDto {
+		private MultipartFile image;
+	}
+
+
+---------------------------------------------- 	
+10_

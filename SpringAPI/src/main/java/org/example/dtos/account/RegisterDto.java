@@ -3,6 +3,7 @@ package org.example.dtos.account;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class RegisterDto {
@@ -17,4 +18,6 @@ public class RegisterDto {
     private String password;
     @NotBlank
     private String confirmPassword;
+
+    private MultipartFile image;
 }
