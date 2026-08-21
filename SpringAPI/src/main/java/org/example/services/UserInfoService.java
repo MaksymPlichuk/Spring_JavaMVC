@@ -17,7 +17,8 @@ public class UserInfoService implements UserDetailsService {
         if (userRepository.existsByUsername(userEntity.getUsername())) {
             throw new RuntimeException("Username " + userEntity.getUsername() + " already exists");
         }
-        //todo
+        UserEntity user = new UserEntity();
+
         userRepository.save(userEntity);
     }
 

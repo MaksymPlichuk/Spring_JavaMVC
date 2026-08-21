@@ -740,3 +740,56 @@ Database: Spring Data JPA виконує SQL-запит INSERT INTO users ... і
 	
 ---------------------------------------------- 	
 09_
+
+@Component	--	автоматично запускається при проекті
+
+implements CommandLineRunner -- при запуску консолі
+
+arg -- команди консольного рядка
+
+	@Component
+	public class DatabaseSeeder implements CommandLineRunner {
+	
+		private final IUserRepository userRepository;
+		private final PasswordEncoder passwordEncoder; //з SecurityConfig
+	
+		public DatabaseSeeder(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+			this.userRepository = userRepository;
+			this.passwordEncoder = passwordEncoder;
+		}
+	
+		@Override
+		public void run(String... args) {
+			String testEmail = "admin@gmail.com";
+	
+			if (userRepository.findByEmail(testEmail).isEmpty()) {
+				UserEntity user = new UserEntity();
+				user.setEmail(testEmail);
+				user.setUsername(testEmail); //робимо username = email
+				user.setPassword(passwordEncoder.encode("123456"));
+	
+				userRepository.save(user);
+				System.out.println(">>> SEED: Користувача засіяно: admin@gmail.com / 123456");
+			}
+		}
+	}
+
+##Data Annotations
+
+@NotBlank 	-- [ Requried ]
+@Email 	-- [ Email ]
+
+
+//створення токену для аутентифікації 
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(savedUser, null, savedUser.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        request.getSession(true).setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext()
+        );
+
+

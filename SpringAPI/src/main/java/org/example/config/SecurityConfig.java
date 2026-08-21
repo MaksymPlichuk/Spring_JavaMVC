@@ -39,7 +39,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
+    @Bean  //викор у DatabaseSeeder
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
